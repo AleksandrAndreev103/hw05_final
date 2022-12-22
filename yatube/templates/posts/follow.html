@@ -3,10 +3,10 @@
 {% block header %} Список постов избранных авторов {% endblock %}
 {% load static %}
 {% load thumbnail %}
-{% load cache %}
+
 {% block content %} 
   {% include 'posts/includes/switcher.html' %}
-  {% cache 20 index_page with page_obj %}
+  
   {% for post in page_obj %}
     <ul>
       <li>
@@ -28,6 +28,6 @@
     {% endif %} 
     {% if not forloop.last %}<hr>{% endif %}
   {% endfor %}
-  {% endcache %} 
+  
   {% include 'posts/includes/paginator.html' %}
 {% endblock %}
