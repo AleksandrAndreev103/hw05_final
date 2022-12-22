@@ -12,11 +12,12 @@ class PostForm(forms.ModelForm):
             'group': 'Группа, к которой будет относиться пост'
         }
 
+
 class CommentForm(forms.ModelForm):
     class Meta:
         model = Comment
         fields = ('text',)
-        labels = {'text': 'Введите текст',}
+        labels = {'text': 'Введите текст'}
         help_texts = {
             'text': 'Текст нового комментария',
         }

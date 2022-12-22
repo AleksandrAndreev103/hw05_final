@@ -11,6 +11,7 @@ from posts.models import Post, Group, Comment, User
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
+
 class PostCreateFormTests(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -112,26 +113,25 @@ class ImageCreateFormTests(TestCase):
         )
         cls.form = PostForm()
 
-
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
-    
+
     def setUp(self):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.author)
 
     def test_create_task(self):
         """Валидная форма создает запись в post с картинкой."""
-        tasks_count = Post.objects.count()  
-        small_gif = (            
-             b'\x47\x49\x46\x38\x39\x61\x02\x00'
-             b'\x01\x00\x80\x00\x00\x00\x00\x00'
-             b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-             b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-             b'\x0A\x00\x3B'
+        tasks_count = Post.objects.count()
+        small_gif = (
+            b'\x47\x49\x46\x38\x39\x61\x02\x00'
+            b'\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+            b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+            b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+            b'\x0A\x00\x3B'
         )
         uploaded = SimpleUploadedFile(
             name='small.gif',
@@ -150,12 +150,14 @@ class ImageCreateFormTests(TestCase):
             data=form_data,
             follow=True
         )
-        self.assertRedirects(response,  reverse(
-                'posts:profile', kwargs={
-                    'username': f'{self.author.username}'
-                }
-            ))
-        self.assertEqual(Post.objects.count(), tasks_count+1)
+        self.assertRedirects(
+            response,
+            reverse(
+                'posts:profile',
+                kwargs={'username': f'{self.author.username}'}
+            )
+        )
+        self.assertEqual(Post.objects.count(), tasks_count + 1)
         self.assertTrue(
             Post.objects.filter(
                 group_id=self.group.id,
@@ -185,7 +187,7 @@ class CommentCreateFormTests(TestCase):
         """Валидная форма создает комментарий к посту."""
         count_one = Comment.objects.filter(post_id=self.post.id).count()
         form_data = {
-        'text': 'Комментарий создан',
+            'text': 'Комментарий создан',
         }
         response = self.authorized_client.post(
             reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
@@ -195,17 +197,20 @@ class CommentCreateFormTests(TestCase):
         self.assertEqual(
             self.post.id, Comment.objects.get().post_id
         )
-        self.assertEqual(count_one + 1, Comment.objects.filter(post_id=self.post.id).count())
+        self.assertEqual(
+            count_one + 1,
+            Comment.objects.filter(post_id=self.post.id).count()
+        )
         self.assertRedirects(
             response,
             reverse('posts:post_detail', kwargs={'post_id': self.post.id})
         )
-    
+
     def test_not_logged_no_comment(self):
         """Незарегестрированный пользователь не может оставить комментарий"""
         count_one = Comment.objects.filter(post_id=self.post.id).count()
         form_data = {
-        'text': 'Несуществующий комментарий',
+            'text': 'Несуществующий комментарий',
         }
         response = self.client.post(
             reverse('posts:add_comment', kwargs={'post_id': self.post.id}),
@@ -219,7 +224,10 @@ class CommentCreateFormTests(TestCase):
             Comment.objects.none().count()
         )
         # Тест №2
-        self.assertEqual(count_one, Comment.objects.filter(post_id=self.post.id).count())
+        self.assertEqual(
+            count_one,
+            Comment.objects.filter(post_id=self.post.id).count()
+        )
         self.assertFalse(
             Comment.objects.filter(
                 text='Несуществующий комментарий',

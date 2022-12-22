@@ -33,7 +33,7 @@ class StaticURLTests(TestCase):
 
     def test_pages_uses_correct_template(self):
         """URL-адрес использует соответствующий шаблон."""
-        
+
         templates_pages_names = {
             reverse('posts:index'): 'posts/index.html',
             reverse(
@@ -53,7 +53,7 @@ class StaticURLTests(TestCase):
         }
         for reverse_name, template in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
-                
+
                 response = self.another_authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
 
@@ -153,7 +153,6 @@ class PaginatorViewsTest(TestCase):
                 text='Тестовый пост',
             ))
         Post.objects.bulk_create(cls.many_posts)
-        
 
     def setUp(self):
         self.authorized_client = Client()
@@ -258,6 +257,7 @@ class PostOnPagesViewsTest(TestCase):
                 response = self.authorized_client.get(reverse_name)
                 self.assertNotIn(another_post, response.context['page_obj'])
 
+
 class CacheViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -278,7 +278,7 @@ class CacheViewsTest(TestCase):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.post.author)
         cache.clear()
-        
+
     def test_index_cache_work(self):
         """
         Главная страница кэшируется и пока кэщ не очищен,
@@ -308,6 +308,7 @@ class CacheViewsTest(TestCase):
         result_three = response_three.content
         self.assertNotEqual(result_two, result_three)
 
+
 class FollowViewsTest(TestCase):
     @classmethod
     def setUpClass(cls):
@@ -334,7 +335,7 @@ class FollowViewsTest(TestCase):
         self.unfollower = Client()
         self.unfollower.force_login(self.not_follower)
         cache.clear()
-        
+
     def test_follow(self):
         """Авторизованный пользователь может подписываться на других пользователей
         """
@@ -366,7 +367,7 @@ class FollowViewsTest(TestCase):
             reverse('posts:follow_index')
         )
         self.assertIn(self.post, response.context['page_obj'])
-        
+
         not_follower_response = self.unfollower.get(
             reverse('posts:follow_index')
         )

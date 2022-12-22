@@ -54,6 +54,7 @@ class Post(models.Model):
     def __str__(self):
         return self.text[:TEXT_LEN]
 
+
 class Comment(models.Model):
     post = models.ForeignKey(
         Post,
@@ -74,11 +75,13 @@ class Comment(models.Model):
         'Дата публикации',
         auto_now_add=True
     )
+
     class Meta:
         ordering = ('created',)
 
     def __str__(self):
         return self.text
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
