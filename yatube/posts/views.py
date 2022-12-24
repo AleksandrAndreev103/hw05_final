@@ -144,17 +144,11 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    # Можешь, пожалуйста, объяснить что не правильно?
-    # Я сначала получаю объект автора, потом фильтрую объект Follow
-    # по пользователю, отправившему запрос, и по автору.
-    # И удаляю этот объект.
-    # На сайте всё работает правильно, у меня исчезают посты
-    # из отдельной страницы. А при подписи, опять появляются.
-    author = get_object_or_404(User, username=username)
-    if request.user != author:
+    follow_author = get_object_or_404(User, username=username)
+    if request.user != follow_author:
         Follow.objects.filter(
             user=request.user,
-            author=author
+            author=follow_author
         ).delete()
         return redirect('posts:follow_index')
-    return redirect('posts:profile', username=author)
+    return redirect('posts:profile', username=follow_author)
