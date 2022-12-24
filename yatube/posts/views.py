@@ -8,50 +8,52 @@ from .forms import PostForm, CommentForm
 from .models import Post, Group, Comment, Follow, User
 
 
+def paginator(queryset, request):
+    paginator = Paginator(queryset, settings.POSTS_QUANTITY)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return {
+        'paginator': paginator,
+        'page_number': page_number,
+        'page_obj': page_obj
+    }
+
+
 @cache_page(20, key_prefix='index_page')
 def index(request):
-    posts = Post.objects.select_related(
+    context = paginator(Post.objects.select_related(
         'group',
         'author',
     ).order_by(
         '-pub_date'
+    ),
+    request
     )
-    paginator = Paginator(posts, settings.POSTS_QUANTITY)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    context = {
-        'page_obj': page_obj,
-    }
     return render(request, 'posts/index.html', context)
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    posts = group.posts.all().order_by('-pub_date')
-    paginator = Paginator(posts, settings.POSTS_QUANTITY)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
     context = {
         'group': group,
-        'page_obj': page_obj,
     }
+    context.update(paginator(
+        group.posts.all().order_by('-pub_date'),
+        request
+    ))
     return render(request, 'posts/group_list.html', context)
 
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    posts = author.posts.all()
-    paginator = Paginator(posts, settings.POSTS_QUANTITY)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
     following = request.user.is_authenticated and Follow.objects.filter(
         user=request.user, author=author).exists()
     template_name = 'posts/profile.html'
     context = {
         'author': author,
-        'page_obj': page_obj,
         'following': following,
     }
+    context.update(paginator(author.posts.all(), request))
     return render(request, template_name, context)
 
 
@@ -122,13 +124,10 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    posts = Post.objects.filter(author__following__user=request.user)
-    paginator = Paginator(posts, settings.POSTS_QUANTITY)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    context = {
-        'page_obj': page_obj
-    }
+    context = paginator(
+        Post.objects.filter(author__following__user=request.user),
+        request
+    )
     return render(request, 'posts/follow.html', context)
 
 
@@ -146,6 +145,12 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
+    # можешь, пожалуйста, объяснить что не првильно?
+    # я сначала получаю объект автора, потом фильтрую
+    # объект Follow по пользователю, отправившему запрос
+    # и по автору. И удаляю этот объект.
+    # На сайте всё работает правильно, у меня исчезают посты
+    # из отдельной страницы. А при подписи, опять появляются. 
     author = get_object_or_404(User, username=username)
     if request.user != author:
         Follow.objects.filter(

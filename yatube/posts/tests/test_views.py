@@ -2,9 +2,9 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.core.cache import cache
 from django import forms
+from django.conf import settings
 
 from posts.models import Post, Group, Follow, User
-from posts.constants import POSTS_ON_FIRST_PAGE, POSTS_ON_SECOND_PAGE
 
 
 class StaticURLTests(TestCase):
@@ -146,7 +146,10 @@ class PaginatorViewsTest(TestCase):
         )
         cls.author = User.objects.create_user(username='AlexAndreev')
         cls.many_posts = []
-        for _ in range(POSTS_ON_FIRST_PAGE + POSTS_ON_SECOND_PAGE):
+        for _ in range(
+            settings.POSTS_ON_FIRST_PAGE
+            + settings.POSTS_ON_SECOND_PAGE
+        ):
             cls.many_posts.append(Post(
                 author=cls.author,
                 group=cls.group,
@@ -162,13 +165,13 @@ class PaginatorViewsTest(TestCase):
     def test_first_page_contains_ten_records(self):
         """Paginator выводит 10 постов на первой странице"""
         templates_pages_names = {
-            reverse('posts:index'): POSTS_ON_FIRST_PAGE,
+            reverse('posts:index'): settings.POSTS_ON_FIRST_PAGE,
             reverse(
                 'posts:group_list', kwargs={'slug': self.group.slug}
-            ): POSTS_ON_FIRST_PAGE,
+            ): settings.POSTS_ON_FIRST_PAGE,
             reverse(
                 'posts:profile', kwargs={'username': self.author.username}
-            ): POSTS_ON_FIRST_PAGE,
+            ): settings.POSTS_ON_FIRST_PAGE,
         }
         for reverse_name, posts_count in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):
@@ -180,13 +183,14 @@ class PaginatorViewsTest(TestCase):
     def test_second_page_contains_three_records(self):
         """Paginator выводит 3 поста на второй странице"""
         templates_pages_names = {
-            reverse('posts:index') + '?page=2': POSTS_ON_SECOND_PAGE,
+            reverse('posts:index') + '?page=2':
+            settings.POSTS_ON_SECOND_PAGE,
             reverse(
                 'posts:group_list', kwargs={'slug': 'test-slug-group'}
-            ) + '?page=2': POSTS_ON_SECOND_PAGE,
+            ) + '?page=2': settings.POSTS_ON_SECOND_PAGE,
             reverse(
                 'posts:profile', kwargs={'username': self.author.username}
-            ) + '?page=2': POSTS_ON_SECOND_PAGE,
+            ) + '?page=2': settings.POSTS_ON_SECOND_PAGE,
         }
         for reverse_name, posts_count in templates_pages_names.items():
             with self.subTest(reverse_name=reverse_name):

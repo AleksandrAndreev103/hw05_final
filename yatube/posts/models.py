@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 
-from posts.constants import TEXT_LEN
+from django.conf import settings
 
 User = get_user_model()
 
@@ -52,7 +52,7 @@ class Post(models.Model):
         verbose_name_plural = 'Посты'
 
     def __str__(self):
-        return self.text[:TEXT_LEN]
+        return self.text[:settings.TEXT_LEN]
 
 
 class Comment(models.Model):

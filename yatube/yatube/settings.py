@@ -141,6 +141,11 @@ EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 POSTS_QUANTITY = 10
+# Константы для теста паджинатора
+POSTS_ON_FIRST_PAGE = 10
+POSTS_ON_SECOND_PAGE = 3
+# Константа для моделей
+TEXT_LEN = 15
 
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 
