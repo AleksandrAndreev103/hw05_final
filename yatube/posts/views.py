@@ -26,8 +26,7 @@ def index(request):
         'author',
     ).order_by(
         '-pub_date'
-    ),
-    request
+    ), request
     )
     return render(request, 'posts/index.html', context)
 
@@ -145,12 +144,12 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    # можешь, пожалуйста, объяснить что не првильно?
-    # я сначала получаю объект автора, потом фильтрую
-    # объект Follow по пользователю, отправившему запрос
-    # и по автору. И удаляю этот объект.
+    # Можешь, пожалуйста, объяснить что не правильно?
+    # Я сначала получаю объект автора, потом фильтрую объект Follow
+    # по пользователю, отправившему запрос, и по автору.
+    # И удаляю этот объект.
     # На сайте всё работает правильно, у меня исчезают посты
-    # из отдельной страницы. А при подписи, опять появляются. 
+    # из отдельной страницы. А при подписи, опять появляются.
     author = get_object_or_404(User, username=username)
     if request.user != author:
         Follow.objects.filter(
